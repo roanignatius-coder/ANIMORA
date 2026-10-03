@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ANIMORA — Anime Discovery Hub</title>
+<meta name="description" content="Discover anime, track upcoming seasons, discuss series, and find where to watch.">
+<style>
+:root{
+ --bg:#0b0e16;--panel:#111622;--panel2:#161b29;--line:#293043;
+ --text:#f3f2f7;--muted:#9ea5b7;--purple:#9b8cff;--pink:#cda5c1;
+ --green:#82c8a0;--gold:#e8c978;--danger:#e88997;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:
+radial-gradient(circle at 75% -10%,#242641 0,transparent 30%),
+linear-gradient(#0b0e16,#0b0e16);color:var(--text);
+font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+a{text-decoration:none;color:inherit}button,input,select,textarea{font:inherit}
+.nav{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;
+position:sticky;top:0;z-index:50;background:rgba(11,14,22,.86);backdrop-filter:blur(15px);
+border-bottom:1px solid rgba(255,255,255,.06)}
+.logo{font-size:22px;font-weight:900;letter-spacing:1px}.logo span{color:var(--pink)}
+.navlinks{display:flex;gap:21px;color:#b8bdcb;font-size:14px}.navlinks a:hover{color:#fff}
+.navsearch{display:flex;gap:8px;align-items:center}
+.navsearch input{width:220px;background:#ffffff07;border:1px solid var(--line);color:#fff;padding:10px 12px;border-radius:10px;outline:none}
+.iconbtn{border:1px solid var(--line);background:#ffffff07;color:#fff;border-radius:10px;padding:9px 11px;cursor:pointer}
+.hero{min-height:500px;padding:78px 5% 68px;display:flex;align-items:center;position:relative;overflow:hidden;
+background:
+linear-gradient(90deg,rgba(11,14,22,.96),rgba(11,14,22,.73),rgba(11,14,22,.56)),
+url('https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=1800&q=85') center/cover}
+.hero-copy{max-width:760px;position:relative;z-index:1}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#c6c1e7}
+h1{font-size:clamp(48px,7vw,84px);line-height:.94;margin:15px 0 13px;
+background:linear-gradient(90deg,#fff,#d5d0ea,#e2b5d3);-webkit-background-clip:text;color:transparent}
+.hero p{max-width:680px;color:#b3b7c6;font-size:17px;line-height:1.72}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:25px}
+.btn,.ghost{padding:12px 17px;border-radius:11px;border:1px solid var(--line);cursor:pointer}
+.btn{background:linear-gradient(135deg,#9183d8,#b798b2);color:#fff;border:0;box-shadow:0 8px 25px #8e82d822}
+.ghost{background:#ffffff08;color:#fff}
+.wrap{width:90%;max-width:1300px;margin:auto}
+.section{padding:44px 0;scroll-margin-top:85px}
+.head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:18px}
+.head h2{margin:0;font-size:29px}.sub{font-size:13px;color:var(--muted);margin-top:5px}
+.genre-wrap{display:flex;align-items:center;gap:9px}.genre-wrap label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+.genre-picker{position:relative}.genre-trigger{min-width:185px;display:flex;align-items:center;gap:9px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#151a27,#10141e);color:#fff;cursor:pointer;box-shadow:0 7px 18px #00000018}
+.genre-trigger:hover{border-color:#9b8cff55}.genre-icon{color:#c9bee9;font-size:14px}.genre-chevron{margin-left:auto;color:#9298aa;transition:.2s}.genre-picker.open .genre-chevron{transform:rotate(180deg)}
+.genre-menu{position:absolute;top:calc(100% + 9px);right:0;width:390px;padding:14px;border:1px solid #30364a;border-radius:16px;background:rgba(14,18,28,.98);backdrop-filter:blur(18px);box-shadow:0 20px 55px #00000055;display:none;z-index:40}
+.genre-picker.open .genre-menu{display:block}.genre-menu-top{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}.genre-menu-title{font-size:14px;font-weight:800}.genre-menu-sub{font-size:11px;color:var(--muted);margin-top:3px}.genre-clear{border:1px solid var(--line);background:#ffffff05;color:#bfc4d2;border-radius:8px;padding:6px 8px;font-size:10px;cursor:pointer}
+.genre-search{display:flex;align-items:center;gap:7px;margin:12px 0 10px;background:#ffffff05;border:1px solid var(--line);border-radius:10px;padding:0 10px;color:#777f92}.genre-search input{border:0;background:transparent;padding:10px 0;width:100%}.genre-search input:focus{border:0}
+.genre-selected{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:#9b8cff0d;border:1px solid #9b8cff20;border-radius:9px;margin-bottom:11px;font-size:10px;color:var(--muted)}.genre-selected strong{color:#d9d2ef;font-size:11px}
+.genre-groups{max-height:340px;overflow:auto;padding-right:2px}.genre-group{margin-bottom:13px}.genre-group:last-child{margin-bottom:0}.genre-group-title{font-size:9px;text-transform:uppercase;letter-spacing:1.3px;color:#747c8f;margin:0 0 7px}.genre-options{display:flex;flex-wrap:wrap;gap:6px}.genre-option{border:1px solid var(--line);background:#ffffff03;color:#bfc4d2;border-radius:8px;padding:7px 9px;font-size:11px;cursor:pointer;transition:.15s}.genre-option:hover{background:#ffffff08;color:#fff}.genre-option.active{background:#9b8cff16;border-color:#9b8cff50;color:#eee9ff}.genre-option.hidden{display:none}
+select,input,textarea{background:#ffffff06;color:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 12px;outline:none}
+select:focus,input:focus,textarea:focus{border-color:#9b8cff55}
+.searchrow{display:flex;gap:10px;margin-bottom:18px}.searchrow input{flex:1}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.pillbtn{border:1px solid var(--line);background:#ffffff05;color:#b9becd;border-radius:9px;padding:8px 11px;cursor:pointer}
+.pillbtn.active{background:#9b8cff18;border-color:#9b8cff55;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:16px}
+.card{background:linear-gradient(180deg,#151a26,#10141e);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:.2s;box-shadow:0 10px 30px #00000018}
+.card:hover{transform:translateY(-3px);border-color:#9b8cff42}
+.poster{height:285px;background:#171c28 center/cover no-repeat;position:relative}
+.badge,.score,.status{position:absolute;background:#090c13db;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:5px 7px;font-size:10px}
+.badge{top:10px;left:10px}.score{top:10px;right:10px;color:var(--gold)}
+.status{left:10px;bottom:10px}.releasing{color:var(--green)}.finished{color:#cfc7ef}.upcoming{color:#e1b7cf}.cancelled{color:var(--danger)}
+.body{padding:13px}.title{font-size:16px;font-weight:800}.meta{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.tag{font-size:10px;padding:4px 6px;background:#ffffff07;border-radius:6px;color:#bdc2d0}
+.two{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+.panel{background:linear-gradient(145deg,#151a27,#10141e);border:1px solid var(--line);border-radius:19px;padding:22px;box-shadow:0 10px 35px #00000018}
+.panel h3{margin:0 0 8px;font-size:23px}.panel p{color:var(--muted);line-height:1.65}
+.item{padding:13px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:15px}.item:last-child{border-bottom:0}
+.provider{font-weight:800}.small{font-size:11px;color:var(--muted);margin-top:3px}
+.community{display:grid;grid-template-columns:1fr 300px;gap:18px}
+.tabs{display:flex;gap:8px;overflow:auto;margin:4px 0 16px}.post{padding:17px 0;border-bottom:1px solid var(--line)}
+.post:last-child{border-bottom:0}.topic{display:inline-block;font-size:10px;padding:5px 7px;border-radius:6px;background:#9b8cff14;color:#cfc9eb}
+.post h4{margin:8px 0 6px;font-size:16px}.post p{color:#a6acbc;font-size:13px;line-height:1.55;margin:0 0 8px}.postmeta{font-size:11px;color:#777f92;display:flex;gap:12px;flex-wrap:wrap}
+.rules div{padding:10px 0;border-bottom:1px solid var(--line);font-size:12px;color:#a7adbd}.rules div:last-child{border:0}.rules span{color:var(--green);font-weight:900;margin-right:7px}
+.monetize{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.coming{display:inline-block;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#e2bfd5;border:1px solid #cda5c133;background:#cda5c112;border-radius:7px;padding:5px 7px}
+.price{font-size:28px;font-weight:900;margin:13px 0}.benefits{display:grid;gap:8px;font-size:12px;color:#d2d5df}.benefits div::before{content:"✓";color:var(--green);font-weight:900;margin-right:8px}
+.ad{min-height:92px;border:1px dashed #384055;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#6f7688;font-size:10px;letter-spacing:2px;margin-top:17px}
+.modal{position:fixed;inset:0;background:#000c;display:none;align-items:center;justify-content:center;padding:18px;z-index:100}
+.modal.open{display:flex}.modalbox{width:min(940px,100%);max-height:92vh;overflow:auto;background:#111522;border:1px solid var(--line);border-radius:22px;padding:24px;position:relative}
+.close{position:absolute;right:15px;top:15px;background:#ffffff07;color:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 10px;cursor:pointer}
+.detail{display:grid;grid-template-columns:235px 1fr;gap:24px}.detail img{width:100%;border-radius:14px}.detail h2{font-size:34px;margin:3px 0 10px}.info{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0}.info>div{background:#ffffff05;border:1px solid #ffffff07;padding:10px;border-radius:9px}.label{font-size:9px;color:var(--muted);text-transform:uppercase}.value{font-size:12px;font-weight:750;margin-top:3px}
+footer{border-top:1px solid var(--line);padding:35px 5%;color:#7e8596;text-align:center;font-size:11px}
+@media(max-width:950px){.navlinks{display:none}.navsearch input{width:150px}.two,.community,.monetize{grid-template-columns:1fr}}
+@media(max-width:700px){.navsearch{display:none}.head{align-items:flex-start;flex-direction:column}.genre-picker{width:100%}.genre-trigger{width:100%}.genre-menu{left:0;right:auto;width:min(390px,92vw)}.detail{grid-template-columns:1fr}.detail img{max-width:235px}.info{grid-template-columns:1fr}.hero{padding-top:55px}.searchrow{flex-direction:column}}
+
+.community-teaser{display:flex;justify-content:space-between;align-items:center;gap:20px;
+background:linear-gradient(120deg,#161b29,#121622 60%,#171627)}
+@media(max-width:700px){.community-teaser{align-items:flex-start;flex-direction:column}.community-teaser .btn{width:100%;text-align:center}}
+
+/* Integrated ANIMORA Community */
+.hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:stretch}
+.hero-main,.panel{background:linear-gradient(145deg,#151a27,#10141e);border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 38px #0000001c}
+.hero-main{padding:32px;position:relative;overflow:hidden;background:
+linear-gradient(120deg,rgba(12,15,24,.93),rgba(17,20,31,.85)),
+url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80') center/cover}
+.hero-main:after{content:"";position:absolute;inset:auto -90px -130px auto;width:320px;height:320px;border-radius:50%;background:#9b8cff12;filter:blur(40px)}
+.hero-main p{color:#aeb4c4;line-height:1.7;max-width:680px}.hero-main .actions{display:flex;gap:9px;margin-top:22px}
+.side-stat{padding:23px}.side-stat h3{margin:0 0 13px;font-size:21px}.stat{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line)}.stat:last-child{border:0}.stat strong{font-size:17px}.stat span{color:var(--muted);font-size:12px}.tab{white-space:nowrap;border:1px solid var(--line);background:#ffffff05;color:#b9becd;padding:9px 12px;border-radius:9px;cursor:pointer}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:15px}.panel-head h2{margin:0;font-size:26px}.post-row{display:flex;gap:12px}
+.post h3{margin:0 0 7px;font-size:17px}.post p{color:#a8afbf;font-size:13px;line-height:1.6;margin:0 0 8px}.post-meta{font-size:11px;color:#788094;display:flex;gap:12px;flex-wrap:wrap}
+.topic{display:inline-block;margin-bottom:8px;font-size:10px;padding:5px 7px;border-radius:6px;background:#9b8cff14;color:#cec8e7}
+.composer{display:none;position:fixed;inset:0;background:#000c;z-index:100;align-items:center;justify-content:center;padding:18px}.composer.open{display:flex}.compose-box{width:min(620px,100%);background:#111522;border:1px solid var(--line);border-radius:21px;padding:24px;position:relative}.compose-box input,.compose-box select,.compose-box textarea{width:100%;margin:6px 0 13px}.compose-box textarea{min-height:145px;resize:vertical}.hero-grid,.layout{grid-template-columns:1fr}.hero-main{padding:25px}.panel-head{align-items:flex-start;flex-direction:column}.panel-head .btn{width:100%}
+
+.people-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.people-card{background:linear-gradient(145deg,#151a27,#10141e);border:1px solid var(--line);border-radius:20px;padding:22px}
+.people-card h2{margin:0;font-size:24px}.people-card p{color:var(--muted);font-size:12px;line-height:1.6}
+.profile-list{display:grid;gap:10px;margin-top:14px}
+.profile{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);background:#ffffff04;border-radius:12px}
+.profile-left{display:flex;align-items:center;gap:10px;min-width:0}.profile-left .avatar{width:42px;height:42px}
+.profile-name{font-size:13px;font-weight:800}.profile-bio{font-size:10px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
+.friend-btn{border:1px solid var(--line);background:#ffffff07;color:#fff;padding:8px 10px;border-radius:9px;cursor:pointer;font-size:11px;white-space:nowrap}
+.friend-btn.add{background:#9b8cff14;border-color:#9b8cff45}.friend-btn.accept{background:#82c8a012;border-color:#82c8a044;color:#9fdbb5}
+.friend-btn.muted{color:#858c9e;cursor:default}
+.friend-status{font-size:10px;color:var(--muted);margin-top:3px}
+.profile-modal{display:none;position:fixed;inset:0;background:#000c;z-index:120;align-items:center;justify-content:center;padding:18px}.profile-modal.open{display:flex}
+.profile-box{width:min(560px,100%);background:#111522;border:1px solid var(--line);border-radius:21px;padding:24px;position:relative}
+.profile-big{display:flex;align-items:center;gap:14px;margin:10px 0 15px}.profile-big .avatar{width:68px;height:68px;font-size:24px}
+.profile-big h3{margin:0;font-size:24px}.profile-big p{margin:4px 0;color:var(--muted);font-size:12px}
+.profile-actions{display:flex;gap:8px;flex-wrap:wrap}.friend-row{padding:12px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.friend-row:last-child{border:0}
+.social-note{font-size:10px;color:#737b8e;margin-top:9px}
+
+.spoiler-hidden{filter:blur(6px);opacity:.45;user-select:none;cursor:pointer;transition:.2s}
+.spoiler-wrap{position:relative}
+.spoiler-cover{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#d9d4e9;font-size:10px;letter-spacing:.7px;text-transform:uppercase}
+.spoiler-wrap.revealed .spoiler-hidden{filter:none;opacity:1}
+.spoiler-wrap.revealed .spoiler-cover{display:none}
+.setting-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:14px 0;border-bottom:1px solid var(--line)}
+.setting-row:last-child{border-bottom:0}.setting-title{font-size:12px;font-weight:800}.setting-desc{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.4}
+.switch{position:relative;width:42px;height:24px;flex:0 0 auto}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;border-radius:20px;background:#2a3040;cursor:pointer;transition:.2s}.slider:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:#d8d8df;transition:.2s}.switch input:checked+.slider{background:#8d83cf}.switch input:checked+.slider:before{transform:translateX(18px)}
+
+.community-integrated{padding-top:20px}.community-hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.community-hero-main,.community-panel{background:linear-gradient(145deg,#151a27,#10141e);border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 38px #0000001c}.community-hero-main{padding:30px;position:relative;overflow:hidden;background:linear-gradient(120deg,rgba(12,15,24,.93),rgba(17,20,31,.85)),url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80') center/cover}.community-hero-main p{color:#aeb4c4;line-height:1.7;max-width:680px}.community-pulse{padding:22px}.community-pulse h3{margin:0 0 12px}.community-stat{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:12px}.community-stat:last-child{border-bottom:0}.community-stat span{color:var(--muted)}.community-stat strong{font-size:15px}.community-layout{display:grid;grid-template-columns:230px minmax(0,1fr) 260px;gap:16px}.group-sidebar,.community-feed,.community-side{background:linear-gradient(145deg,#151a27,#10141e);border:1px solid var(--line);border-radius:18px;padding:16px}.group-list{display:grid;gap:7px;margin-top:12px}.group-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid transparent;border-radius:11px;cursor:pointer}.group-item:hover{background:#ffffff05}.group-item.active{background:#9b8cff12;border-color:#9b8cff38}.group-icon{width:34px;height:34px;border-radius:10px;background:#ffffff07;display:flex;align-items:center;justify-content:center}.group-name{font-size:12px;font-weight:800}.group-members{font-size:10px;color:var(--muted);margin-top:2px}.community-group-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:15px;border-bottom:1px solid var(--line)}.community-group-head h3{margin:5px 0 4px;font-size:24px}.community-group-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}.join-btn{border:1px solid var(--line);background:#ffffff07;color:#fff;padding:9px 11px;border-radius:9px;cursor:pointer;white-space:nowrap}.join-btn.joined{background:#82c8a012;border-color:#82c8a044;color:#9fdbb5}.joined-strip{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0}.mini-group{border:1px solid var(--line);background:#ffffff05;color:#bfc4d2;border-radius:8px;padding:7px 9px;font-size:10px;cursor:pointer}.community-feed .tabs{margin-top:14px}.community-post{padding:16px 0;border-bottom:1px solid var(--line)}.community-post:last-child{border-bottom:0}.community-post-row{display:flex;gap:12px}.community-post h4{margin:0 0 6px;font-size:16px}.community-post p{margin:0 0 8px;color:#a8afbf;font-size:13px;line-height:1.55}.community-post-meta{font-size:11px;color:#788094;display:flex;gap:12px;flex-wrap:wrap}.community-rule{padding:10px 0;border-bottom:1px solid var(--line);font-size:12px;color:#a6acbc}.community-rule:last-child{border-bottom:0}.community-rule b{color:var(--green);margin-right:7px}.community-side h3{margin:0 0 10px}.community-section-title{font-size:11px;text-transform:uppercase;letter-spacing:1.7px;color:#8f96a8}.community-people{display:grid;grid-template-columns:1fr 1fr;gap:16px}.community-people-card{background:linear-gradient(145deg,#151a27,#10141e);border:1px solid var(--line);border-radius:18px;padding:20px}.community-people-card h3{margin:4px 0 5px}.community-people-card p{color:var(--muted);font-size:12px;line-height:1.6}.community-composer{display:none;position:fixed;inset:0;background:#000c;z-index:100;align-items:center;justify-content:center;padding:18px}.community-composer.open{display:flex}.community-compose-box{width:min(620px,100%);background:#111522;border:1px solid var(--line);border-radius:21px;padding:24px;position:relative}.community-compose-box input,.community-compose-box select,.community-compose-box textarea{width:100%;margin:6px 0 13px}.community-compose-box textarea{min-height:145px;resize:vertical}.community-profile-modal{display:none;position:fixed;inset:0;background:#000c;z-index:120;align-items:center;justify-content:center;padding:18px}.community-profile-modal.open{display:flex}.community-profile-box{width:min(560px,100%);background:#111522;border:1px solid var(--line);border-radius:21px;padding:24px;position:relative}.community-profile-big{display:flex;align-items:center;gap:14px;margin:10px 0 15px}.community-profile-big .avatar{width:68px;height:68px;font-size:24px}.community-profile-big h3{margin:0;font-size:24px}.community-profile-big p{margin:4px 0;color:var(--muted);font-size:12px}.community-profile-actions{display:flex;gap:8px;flex-wrap:wrap}.community-friend-row{padding:12px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.community-friend-row:last-child{border:0}.community-setting{margin-top:16px}.community-setting .setting-row{padding:14px 0}.community-spoiler-hidden{filter:blur(6px);opacity:.45;user-select:none;cursor:pointer;transition:.2s}.community-spoiler-wrap{position:relative}.community-spoiler-cover{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#d9d4e9;font-size:10px;letter-spacing:.7px;text-transform:uppercase}.community-spoiler-wrap.revealed .community-spoiler-hidden{filter:none;opacity:1}.community-spoiler-wrap.revealed .community-spoiler-cover{display:none}
+@media(max-width:1050px){.community-layout{grid-template-columns:190px minmax(0,1fr)}.community-side{grid-column:1/-1}.community-hero{grid-template-columns:1fr}}
+@media(max-width:700px){.community-layout,.community-people{grid-template-columns:1fr}.community-group-head{flex-direction:column}.community-group-head .join-btn{width:100%}}
+
+/* ANIMORA Auth */
+.auth-area{display:flex;align-items:center;gap:8px}.auth-btn{border:1px solid var(--line);background:#ffffff08;color:#fff;padding:8px 12px;border-radius:9px;cursor:pointer}.auth-user{font-size:11px;color:#c9c4d8}.auth-modal{display:none;position:fixed;inset:0;background:#000c;z-index:200;align-items:center;justify-content:center;padding:18px}.auth-modal.open{display:flex}.auth-box{width:min(430px,100%);background:#111522;border:1px solid var(--line);border-radius:21px;padding:25px;position:relative;box-shadow:0 25px 80px #0008}.auth-box h2{margin:4px 0 7px}.auth-box p{color:var(--muted);font-size:12px;line-height:1.5}.auth-box input{width:100%;margin:7px 0 12px}.auth-error{color:#ff9b9b;font-size:11px;min-height:16px}.auth-success{color:#9fdbb5;font-size:11px;min-height:16px}.auth-switch{text-align:center;margin-top:14px;color:var(--muted);font-size:11px}.auth-switch button{background:none;border:0;color:#c8bcff;cursor:pointer}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<nav class="nav">
+<a class="logo" href="#">ANI<span>MORA</span></a>
+<div class="navlinks"><a href="#discover">Discover</a><a href="#upcoming">Upcoming</a><a href="#community">Community</a><a href="#watch">Where to Watch</a><a href="#support">Support</a></div>
+<div class="auth-area" id="authArea"><button class="auth-btn" onclick="openAuth('login')">Sign In</button><button class="auth-btn" onclick="openAuth('signup')">Create Account</button></div>
+<div class="navsearch"><input id="topSearch" placeholder="Search anime..." aria-label="Search anime"><button class="iconbtn" onclick="runSearch()">⌕</button></div>
+</nav>
+
+<header class="hero">
+<div class="hero-copy">
+<div class="eyebrow">Anime discovery • community • seasons</div>
+<h1>Find your next<br>obsession.</h1>
+<p>Explore anime, read detailed information, track upcoming releases, discuss your favourites with other weebs, and check legitimate viewing options.</p>
+<div class="actions"><button class="btn" onclick="document.getElementById('discover').scrollIntoView({behavior:'smooth'})">Start Exploring</button><button class="ghost" onclick="document.getElementById('community').scrollIntoView({behavior:'smooth'})">Join Community</button></div>
+</div>
+</header>
+
+<main class="wrap">
+<section class="section" id="discover">
+<div class="head">
+<div><h2>Anime Discovery</h2><div class="sub">Live-ready anime browser with search, genres, status and detailed pages.</div></div>
+<div class="genre-picker">
+<button class="genre-trigger" id="genreTrigger" type="button" onclick="toggleGenres()">
+<span class="genre-icon">✦</span><span id="genreLabel">All Genres</span><span class="genre-chevron">⌄</span>
+</button>
+<div class="genre-menu" id="genreMenu">
+<div class="genre-menu-top">
+<div><div class="genre-menu-title">Browse by genre</div><div class="genre-menu-sub">Choose a vibe for your next anime.</div></div>
+<button type="button" class="genre-clear" onclick="changeGenre('ALL');closeGenres()">Reset</button>
+</div>
+<div class="genre-search">
+<span>⌕</span><input id="genreSearch" placeholder="Search genres..." oninput="filterGenres(this.value)">
+</div>
+<div class="genre-selected"><span>Selected</span><strong id="genreSelected">All Genres</strong></div>
+<div class="genre-groups" id="genreGroups">
+<div class="genre-group"><div class="genre-group-title">Core</div><div class="genre-options">
+<button class="genre-option active" data-genre="ALL" onclick="pickGenre('ALL')">All Genres</button>
+<button class="genre-option" data-genre="Action" onclick="pickGenre('Action')">Action</button>
+<button class="genre-option" data-genre="Adventure" onclick="pickGenre('Adventure')">Adventure</button>
+<button class="genre-option" data-genre="Comedy" onclick="pickGenre('Comedy')">Comedy</button>
+<button class="genre-option" data-genre="Drama" onclick="pickGenre('Drama')">Drama</button>
+<button class="genre-option" data-genre="Fantasy" onclick="pickGenre('Fantasy')">Fantasy</button>
+<button class="genre-option" data-genre="Romance" onclick="pickGenre('Romance')">Romance</button>
+</div></div>
+<div class="genre-group"><div class="genre-group-title">Mood & Story</div><div class="genre-options">
+<button class="genre-option" data-genre="Horror" onclick="pickGenre('Horror')">Horror</button>
+<button class="genre-option" data-genre="Mystery" onclick="pickGenre('Mystery')">Mystery</button>
+<button class="genre-option" data-genre="Psychological" onclick="pickGenre('Psychological')">Psychological</button>
+<button class="genre-option" data-genre="Slice of Life" onclick="pickGenre('Slice of Life')">Slice of Life</button>
+<button class="genre-option" data-genre="Supernatural" onclick="pickGenre('Supernatural')">Supernatural</button>
+<button class="genre-option" data-genre="Thriller" onclick="pickGenre('Thriller')">Thriller</button>
+</div></div>
+<div class="genre-group"><div class="genre-group-title">Special</div><div class="genre-options">
+<button class="genre-option" data-genre="Ecchi" onclick="pickGenre('Ecchi')">Ecchi</button>
+<button class="genre-option" data-genre="Mahou Shoujo" onclick="pickGenre('Mahou Shoujo')">Mahou Shoujo</button>
+<button class="genre-option" data-genre="Mecha" onclick="pickGenre('Mecha')">Mecha</button>
+<button class="genre-option" data-genre="Music" onclick="pickGenre('Music')">Music</button>
+<button class="genre-option" data-genre="Sci-Fi" onclick="pickGenre('Sci-Fi')">Sci-Fi</button>
+<button class="genre-option" data-genre="Sports" onclick="pickGenre('Sports')">Sports</button>
+</div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="searchrow"><input id="search" placeholder="Search anime by title..."><button class="btn" onclick="runSearch()">Search</button></div>
+<div class="filters"><button class="pillbtn active" onclick="setMode('trending',this)">Trending</button><button class="pillbtn" onclick="setMode('top',this)">Top Rated</button><button class="pillbtn" onclick="setMode('upcoming',this)">Upcoming</button><button class="pillbtn" onclick="setMode('finished',this)">Finished</button></div>
+<div class="grid" id="grid"><div class="loading">Loading anime...</div></div>
+</section>
+
+<section class="section" id="upcoming">
+<div class="head"><div><h2>Upcoming Seasons</h2><div class="sub">Shows scheduled for the next season or not yet released.</div></div></div>
+<div class="grid" id="upcomingGrid"><div class="loading">Loading upcoming anime...</div></div>
+</section>
+
+
+<section class="section community-integrated" id="community">
+<div class="community-hero">
+<div class="community-hero-main">
+<div class="eyebrow">The weeb corner</div>
+<h2 style="font-size:clamp(34px,5vw,56px);line-height:.98;margin:10px 0">Talk anime.<br>Meet your people.</h2>
+<p>A dedicated home for theories, recommendations, episode reactions, rankings, fan art and everything you want to talk about with other weebs.</p>
+<div class="actions" style="display:flex;gap:9px;margin-top:22px"><button class="btn" onclick="openCommunityComposer()">＋ Start a Discussion</button><button class="ghost" onclick="document.getElementById('people').scrollIntoView({behavior:'smooth'})">Find Friends</button></div>
+</div>
+<div class="community-panel community-pulse">
+<h3>Community pulse</h3>
+<div class="community-stat"><span>Active discussions</span><strong id="discussionCount">128</strong></div>
+<div class="community-stat"><span>New posts today</span><strong>34</strong></div>
+<div class="community-stat"><span>Popular topic</span><strong>Theories</strong></div>
+<div class="community-stat"><span>Community status</span><strong style="color:var(--green)">Open</strong></div>
+</div>
+</div>
+
+<div class="community-layout" style="margin-top:18px">
+<aside class="group-sidebar">
+<div class="community-section-title">Anime groups</div>
+<div class="sub">Pick a focused community instead of one crowded feed.</div>
+<div class="group-list" id="groupList"></div>
+</aside>
+
+<div class="community-feed">
+<div class="community-group-head"><div><div class="eyebrow" id="currentGroupIcon">✦</div><h3 id="currentGroupName">Everything Anime</h3><p id="currentGroupDesc">General anime talk, seasonal shows and whatever is on your mind.</p></div><button class="join-btn" id="currentJoinBtn" onclick="toggleCurrentGroup()">＋ Join Group</button></div>
+<div class="joined-strip" id="joinedStrip"></div>
+<div class="tabs">
+<button class="tab active" onclick="setGroupFilter('ALL',this)">All Posts</button><button class="tab" onclick="setGroupFilter('Discussion',this)">Discussions</button><button class="tab" onclick="setGroupFilter('Theory',this)">Theories</button><button class="tab" onclick="setGroupFilter('Recommendation',this)">Recommendations</button><button class="tab" onclick="setGroupFilter('Spoiler',this)">Spoilers</button><button class="tab" onclick="setGroupFilter('News',this)">News</button><button class="tab" onclick="setGroupFilter('Fan Art',this)">Fan Art</button>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><div class="community-section-title">Latest conversations</div><h3 style="margin:4px 0 0;font-size:22px">What the weebs are saying</h3></div><button class="btn" onclick="openCommunityComposer()">New Post</button></div>
+<div id="groupPosts"></div>
+</div>
+
+<aside class="community-side">
+<h3>Community Rules</h3>
+<div class="community-rule"><b>✓</b>Be respectful to everyone.</div><div class="community-rule"><b>✓</b>Use spoiler tags for major reveals.</div><div class="community-rule"><b>✓</b>No piracy or illegal streaming links.</div><div class="community-rule"><b>✓</b>Keep discussions related to anime/manga.</div><div class="community-rule"><b>✓</b>No harassment or hate.</div>
+<div style="margin-top:18px"><h3>Popular tags</h3><div class="tabs" style="flex-wrap:wrap;overflow:visible"><span class="topic">#onepiece</span><span class="topic">#jjk</span><span class="topic">#sololeveling</span><span class="topic">#romance</span><span class="topic">#theories</span><span class="topic">#seasonal</span></div></div>
+</aside>
+</div>
+
+<div class="community-people" id="people" style="margin-top:18px">
+<div class="community-people-card"><div class="eyebrow">Find your people</div><h3>Community Members</h3><p>Browse members and send friend requests. Requests and friendships are stored on this device.</p><input id="peopleSearch" placeholder="Search people..." style="width:100%;margin-top:8px" oninput="renderCommunityPeople()"><div class="profile-list" id="peopleList"></div></div>
+<div class="community-people-card"><div class="eyebrow">Your circle</div><h3>Friends & Requests</h3><p>Manage incoming requests and see your accepted friends.</p><div id="requestsList"></div><div style="margin-top:16px"><div class="small" style="text-transform:uppercase;letter-spacing:1px">Your Friends</div><div id="friendsList"></div></div><div class="community-setting"><div class="eyebrow">Your profile settings</div><div class="setting-row"><div><div class="setting-title">Censor spoilers</div><div class="setting-desc">Blur spoiler posts until you choose to reveal them.</div></div><label class="switch"><input id="spoilerToggle" type="checkbox" onchange="saveSpoilerSetting(this.checked)"><span class="slider"></span></label></div></div></div>
+</div>
+</section>
+
+
+<section class="section" id="watch">
+<div class="two">
+<div class="panel"><h3>Where to Watch</h3><p>Availability can change by country, title and season. Use regional services to verify current options.</p>
+<div class="item"><div><div class="provider">Crunchyroll</div><div class="small">Anime-focused streaming service</div></div><span>↗</span></div>
+<div class="item"><div><div class="provider">Netflix</div><div class="small">Catalog varies by region</div></div><span>↗</span></div>
+<div class="item"><div><div class="provider">Prime Video</div><div class="small">Catalog varies by title</div></div><span>↗</span></div>
+<div class="item"><div><div class="provider">JustWatch</div><div class="small">Search current availability</div></div><a href="https://www.justwatch.com/in" target="_blank" rel="noopener">↗</a></div>
+</div>
+<div class="panel"><h3>Anime Status</h3><p><b style="color:var(--green)">Releasing</b> — episodes are currently airing.</p><p><b style="color:#cfc7ef">Finished</b> — the current anime run has ended.</p><p><b style="color:#e1b7cf">Upcoming</b> — announced or not yet released.</p><p><b style="color:var(--danger)">Cancelled</b> — release/production was cancelled in the database.</p></div>
+</div>
+</section>
+
+<section class="section" id="support">
+<div class="head"><div><h2>Support ANIMORA <span class="coming">Coming Soon</span></h2><div class="sub">Future premium, partnership and advertising features.</div></div></div>
+<div class="monetize">
+<div class="panel">
+<div class="eyebrow">ANIMORA+</div><h3>Premium Experience <span class="coming">Coming Soon</span></h3>
+<p>Planned features for power users who want a more personalized anime experience.</p>
+<div class="price">₹99 <small style="font-size:11px;color:var(--muted)"> / month (planned)</small></div>
+<div class="benefits"><div>Ad-free browsing</div><div>Custom watchlists and profiles</div><div>Premium badges</div><div>Advanced discovery tools</div></div>
+<button class="btn" onclick="alert('ANIMORA+ is coming soon. Payments are not available yet.')">Coming Soon</button>
+</div>
+<div class="panel"><h3>Future Partnerships</h3><p>Legitimate anime merchandise, partner recommendations and sponsored placements will appear here in a future release.</p>
+<div class="item"><div><div class="provider">Anime Merchandise</div><div class="small">Figures, manga, posters & collectibles • Coming Soon</div></div><span>🔒</span></div>
+<div class="item"><div><div class="provider">Partner Offers</div><div class="small">Relevant anime services • Coming Soon</div></div><span>🔒</span></div>
+<div class="item"><div><div class="provider">Sponsored Features</div><div class="small">Clearly labeled placements • Coming Soon</div></div><span>🔒</span></div>
+</div>
+</div>
+<div class="ad">ADVERTISEMENT • COMING SOON</div>
+</section>
+</main>
+
+<footer>ANIMORA • Discover. Watch. Connect. • Streaming links are for legitimate services only.</footer>
+
+<div class="auth-modal" id="authModal"><div class="auth-box"><button class="close" onclick="closeAuth()">✕</button><div class="eyebrow">ANIMORA ACCOUNT</div><h2 id="authTitle">Welcome back</h2><p id="authSubtitle">Sign in to sync your profile and access your ANIMORA account.</p><label class="small">Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"><label class="small">Password</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••"><div id="authError" class="auth-error"></div><div id="authSuccess" class="auth-success"></div><button class="btn" style="width:100%" id="authSubmit" onclick="submitAuth()">Sign In</button><div class="auth-switch"><span id="authSwitchText">New to ANIMORA?</span> <button onclick="toggleAuthMode()" id="authSwitchBtn">Create an account</button></div></div></div>
+<div class="community-composer" id="communityComposer"><div class="community-compose-box"><button class="close" onclick="closeCommunityComposer()">✕</button><div class="eyebrow">JOIN THE CONVERSATION</div><h2>Start a discussion</h2><div class="small" id="composerGroupLabel" style="margin-bottom:8px"></div><label class="small">Title</label><input id="communityPostTitle" maxlength="100" placeholder="e.g. What anime should I watch after AOT?"><label class="small">Topic</label><select id="communityPostTopic"><option>Discussion</option><option>Theory</option><option>Recommendation</option><option>Spoiler</option><option>News</option><option>Fan Art</option></select><label class="small">Your post</label><textarea id="communityPostBody" maxlength="1000" placeholder="Share your thoughts..."></textarea><div style="display:flex;justify-content:flex-end;gap:8px"><button class="ghost" onclick="closeCommunityComposer()">Cancel</button><button class="btn" onclick="createCommunityPost()">Post Discussion</button></div></div></div>
+<div class="community-profile-modal" id="communityProfileModal"><div class="community-profile-box"><button class="close" onclick="closeCommunityProfile()">✕</button><div id="communityProfileContent"></div></div></div>
+
+<div class="modal" id="detailModal"><div class="modalbox"><button class="close" onclick="closeDetail()">✕</button><div id="detail"></div></div></div>
+
+<div class="modal" id="postModal"><div class="modalbox" style="max-width:620px">
+<button class="close" onclick="closePost()">✕</button><h2>Start a discussion</h2>
+<label class="small">Title</label><input id="postTitle" maxlength="100" style="width:100%;margin:5px 0 12px" placeholder="What's on your mind?">
+<label class="small">Topic</label><select id="postTopic" style="width:100%;margin:5px 0 12px"><option>Discussion</option><option>Theory</option><option>Recommendation</option><option>Spoiler</option></select>
+<label class="small">Post</label><textarea id="postBody" maxlength="1000" style="width:100%;margin:5px 0 15px;min-height:140px" placeholder="Share your thoughts..."></textarea>
+<div style="display:flex;justify-content:flex-end;gap:8px"><button class="ghost" onclick="closePost()">Cancel</button><button class="btn" onclick="createPost()">Post Discussion</button></div>
+</div></div>
+
+<script>
+const ANIMORA_SUPABASE_URL = "https://mlvabrzgrsjndhxdsghp.supabase.co";
+const ANIMORA_SUPABASE_KEY = "sb_publishable_vvd1TR3En41aJIVD55BA1A_LtWeH1TM";
+const animoraSupabase = window.supabase.createClient(ANIMORA_SUPABASE_URL, ANIMORA_SUPABASE_KEY);
+let authMode = "login";
+let animoraUser = null;
+
+function openAuth(mode="login"){ authMode=mode; renderAuthMode(); document.getElementById("authModal").classList.add("open"); setTimeout(()=>document.getElementById("authEmail").focus(),50); }
+function closeAuth(){document.getElementById("authModal").classList.remove("open");}
+function toggleAuthMode(){authMode=authMode==="login"?"signup":"login";renderAuthMode();}
+function renderAuthMode(){
+ const signup=authMode==="signup";
+ document.getElementById("authTitle").textContent=signup?"Create your account":"Welcome back";
+ document.getElementById("authSubtitle").textContent=signup?"Create an ANIMORA account to keep your community identity across devices.":"Sign in to your ANIMORA account.";
+ document.getElementById("authSubmit").textContent=signup?"Create Account":"Sign In";
+ document.getElementById("authSwitchText").textContent=signup?"Already have an account?":"New to ANIMORA?";
+ document.getElementById("authSwitchBtn").textContent=signup?"Sign in":"Create an account";
+ document.getElementById("authError").textContent="";document.getElementById("authSuccess").textContent="";
+}
+async function submitAuth(){
+ const email=document.getElementById("authEmail").value.trim(), password=document.getElementById("authPassword").value;
+ const err=document.getElementById("authError"), ok=document.getElementById("authSuccess"), btn=document.getElementById("authSubmit");
+ err.textContent="";ok.textContent="";
+ if(!email||password.length<6){err.textContent="Enter a valid email and a password of at least 6 characters.";return;}
+ btn.disabled=true;btn.textContent=authMode==="signup"?"Creating…":"Signing in…";
+ try{
+  if(authMode==="signup") {
+   const {data,error}=await animoraSupabase.auth.signUp({email,password});
+   if(error) throw error;
+   if(data.session){ok.textContent="Account created and signed in.";setTimeout(closeAuth,700);} else {ok.textContent="Account created. Check your email to confirm your account, then sign in.";}
+  } else {
+   const {error}=await animoraSupabase.auth.signInWithPassword({email,password});
+   if(error) throw error; ok.textContent="Signed in.";setTimeout(closeAuth,500);
+  }
+ }catch(e){err.textContent=e?.message||"Authentication failed. Please try again.";}
+ finally{btn.disabled=false;}
+}
+async function signOutAnimora(){await animoraSupabase.auth.signOut();}
+function renderAuthArea(){
+ const el=document.getElementById("authArea"); if(!el)return;
+ if(animoraUser){ const email=animoraUser.email||"Account"; el.innerHTML=`<span class="auth-user">${esc(email)}</span><button class="auth-btn" onclick="signOutAnimora()">Sign Out</button>`; }
+ else el.innerHTML='<button class="auth-btn" onclick="openAuth(\'login\')">Sign In</button><button class="auth-btn" onclick="openAuth(\'signup\')">Create Account</button>';
+}
+(async()=>{
+ const {data}=await animoraSupabase.auth.getSession(); animoraUser=data.session?.user||null; renderAuthArea();
+ animoraSupabase.auth.onAuthStateChange((_event,session)=>{animoraUser=session?.user||null;renderAuthArea();});
+})();
+
+const API="https://graphql.anilist.co";
+const fields=`id title{romaji english native} description format status startDate{year month day} endDate{year month day} season seasonYear episodes duration averageScore genres coverImage{large extraLarge} studios(isMain:true){nodes{name}} nextAiringEpisode{episode airingAt timeUntilAiring}`;
+const seed=[
+{title:"Solo Leveling",score:8.8,status:"FINISHED",episodes:25,genres:["Action","Fantasy"],img:"https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80"},
+{title:"One Piece",score:9.0,status:"RELEASING",episodes:1000,genres:["Action","Adventure"],img:"https://images.unsplash.com/photo-1541560052-77ec1bbc09f7?auto=format&fit=crop&w=600&q=80"},
+{title:"Jujutsu Kaisen",score:8.6,status:"RELEASING",episodes:47,genres:["Action","Supernatural"],img:"https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&w=600&q=80"},
+{title:"Demon Slayer",score:8.7,status:"FINISHED",episodes:63,genres:["Action","Fantasy"],img:"https://images.unsplash.com/photo-1535016120720-40c646be5580?auto=format&fit=crop&w=600&q=80"},
+{title:"Attack on Titan",score:9.1,status:"FINISHED",episodes:94,genres:["Action","Drama"],img:"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80"},
+{title:"Frieren",score:8.9,status:"RELEASING",episodes:28,genres:["Adventure","Drama"],img:"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=600&q=80"}
+];
+let mode="trending", genre="ALL";
+const defaults=[
+{title:"What anime completely changed your view on storytelling?",topic:"Discussion",author:"Kairo",body:"Looking for an anime with a story that stayed with you after finishing it.",comments:42},
+{title:"My theory about the next major arc 👀",topic:"Theory",author:"Yuki",body:"There are a few clues from earlier episodes that might point toward what happens next.",comments:27},
+{title:"Need an anime after finishing Jujutsu Kaisen",topic:"Recommendation",author:"Mika",body:"Looking for something with great fights, characters and a strong story.",comments:18},
+{title:"ONE PIECE final saga discussion — SPOILERS",topic:"Spoiler",author:"ZoroFan",body:"Major manga/anime spoilers ahead. Open only if you are caught up.",comments:63}
+];
+
+async function gql(query,variables={}){const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query,variables})});if(!r.ok)throw Error("Live anime service unavailable");const j=await r.json();if(j.errors)throw Error(j.errors[0].message);return j.data}
+function name(a){return a.title?.english||a.title?.romaji||a.title?.native||a.title||"Unknown"}
+function clean(v){return (v||"No synopsis available.").replace(/<[^>]*>/g,"")}
+function date(v){return v?.year?`${v.year}${v.month?`-${String(v.month).padStart(2,"0")}`:""}${v.day?`-${String(v.day).padStart(2,"0")}`:""}`:"TBA"}
+function season(a){return a.season?`${a.season[0]+a.season.slice(1).toLowerCase()} ${a.seasonYear||""}`:"Season TBA"}
+function status(a){if(a.status==="RELEASING")return"Releasing";if(a.status==="FINISHED")return"Finished";if(a.status==="NOT_YET_RELEASED")return"Upcoming";if(a.status==="CANCELLED")return"Cancelled";return a.status||"Unknown"}
+function card(a,i){const st=status(a),cls=st.toLowerCase();const img=a.coverImage?.extraLarge||a.coverImage?.large||a.img||"";return `<article class="card" onclick="openDetail(${i})"><div class="poster" style="background-image:url('${img}')"><span class="badge">${season(a)}</span><span class="score">★ ${a.averageScore?(a.averageScore/10).toFixed(1):(a.score||"N/A")}</span><span class="status ${cls}">${st}</span></div><div class="body"><div class="title">${esc(name(a))}</div><div class="meta">${a.episodes??"?"} episodes • ${a.format||"TV"} • ${a.duration?a.duration+" min":"runtime TBA"}</div><div class="tags">${(a.genres||[]).slice(0,3).map(g=>`<span class="tag">${esc(g)}</span>`).join("")}</div></div></article>`}
+let current=[];
+function draw(list,id="grid"){current=list;document.getElementById(id).innerHTML=list.length?list.map((a,i)=>card(a,i)).join(""):`<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px">No anime found.</div>`}
+async function load(modeOverride=mode){
+document.getElementById("grid").innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px">Loading anime...</div>`;
+try{
+let q,v={};
+if(modeOverride==="trending")q=`query{Page(perPage:12){media(type:ANIME,sort:TRENDING_DESC${genre!=="ALL"?`,genre:"${genre}"`:""}){${fields}}}}`;
+else if(modeOverride==="top")q=`query{Page(perPage:12){media(type:ANIME,sort:SCORE_DESC${genre!=="ALL"?`,genre:"${genre}"`:""}){${fields}}}}`;
+else if(modeOverride==="upcoming")q=`query{Page(perPage:12){media(type:ANIME,status:NOT_YET_RELEASED,sort:POPULARITY_DESC${genre!=="ALL"?`,genre:"${genre}"`:""}){${fields}}}}`;
+else q=`query{Page(perPage:12){media(type:ANIME,status:FINISHED,sort:SCORE_DESC${genre!=="ALL"?`,genre:"${genre}"`:""}){${fields}}}}`;
+const d=await gql(q,v);draw(d.Page.media);
+}catch(e){draw(seed);document.getElementById("grid").insertAdjacentHTML("afterbegin",`<div style="grid-column:1/-1;color:#b9becb;font-size:11px;text-align:center;padding:8px">Live data unavailable — showing starter titles.</div>`)}
+}
+async function search(){const q=document.getElementById("search").value.trim()||document.getElementById("topSearch").value.trim();if(!q){load();return}
+document.getElementById("grid").innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px">Searching...</div>`;
+try{const d=await gql(`query($q:String){Page(perPage:20){media(type:ANIME,search:$q,sort:SEARCH_MATCH){${fields}}}}`,{q});draw(d.Page.media)}catch(e){document.getElementById("grid").innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px">Search is temporarily unavailable.</div>`}}
+
+function toggleGenres(){const p=document.querySelector(".genre-picker");p.classList.toggle("open");if(p.classList.contains("open"))setTimeout(()=>document.getElementById("genreSearch").focus(),50)}
+function closeGenres(){document.querySelector(".genre-picker").classList.remove("open")}
+function pickGenre(v){changeGenre(v);const label=v==="ALL"?"All Genres":v;document.getElementById("genreLabel").textContent=label;document.getElementById("genreSelected").textContent=label;document.querySelectorAll(".genre-option").forEach(b=>b.classList.toggle("active",b.dataset.genre===v));closeGenres()}
+function filterGenres(q){q=q.toLowerCase().trim();document.querySelectorAll(".genre-option").forEach(b=>{b.classList.toggle("hidden",!!q&&!b.dataset.genre.toLowerCase().includes(q))})}
+document.addEventListener("click",e=>{const p=document.querySelector(".genre-picker");if(p&&!p.contains(e.target))closeGenres()})
+
+function runSearch(){search()}
+function changeGenre(v){genre=v;const label=v==='ALL'?'All Genres':v;document.getElementById('genreLabel').textContent=label;document.getElementById('genreSelected').textContent=label;document.querySelectorAll('.genre-option').forEach(b=>b.classList.toggle('active',b.dataset.genre===v));load(mode)}
+function setMode(m,el){mode=m;document.querySelectorAll(".pillbtn").forEach(x=>x.classList.remove("active"));el.classList.add("active");load(m)}
+async function upcoming(){const now=new Date(),m=now.getUTCMonth()+1,y=now.getUTCFullYear();let s=m<=3?"WINTER":m<=6?"SPRING":m<=9?"SUMMER":"FALL";let yy=y;if(m===10||m===11||m===12){s="WINTER";yy=y+1}
+try{const d=await gql(`query($s:MediaSeason!,$y:Int){Page(perPage:10){media(type:ANIME,season:$s,seasonYear:$y,sort:POPULARITY_DESC){${fields}}}}`,{s,y:yy});const list=d.Page.media.filter(a=>a.status!=="FINISHED");draw(list,"upcomingGrid")}catch{draw(seed.slice(0,6),"upcomingGrid")}}
+function openDetail(i){const a=current[i],img=a.coverImage?.extraLarge||a.coverImage?.large||a.img||"";const next=a.nextAiringEpisode?`Episode ${a.nextAiringEpisode.episode} • ${new Date(a.nextAiringEpisode.airingAt*1000).toLocaleString()}`:status(a)==="Finished"?"No next episode — current run is finished.":status(a)==="Upcoming"?"Release date: "+date(a.startDate):"No next airing time listed.";
+document.getElementById("detail").innerHTML=`<div class="detail"><img src="${img}" alt=""><div><div class="eyebrow">${status(a)} • ${season(a)}</div><h2>${esc(name(a))}</h2><div>${(a.genres||[]).map(g=>`<span class="tag" style="display:inline-block;margin:2px">${esc(g)}</span>`).join("")}</div><p>${esc(clean(a.description))}</p><div class="info"><div><div class="label">Status</div><div class="value">${status(a)}</div></div><div><div class="label">Episodes</div><div class="value">${a.episodes??"TBA"}</div></div><div><div class="label">Released</div><div class="value">${date(a.startDate)}</div></div><div><div class="label">Ended</div><div class="value">${date(a.endDate)}</div></div><div><div class="label">Studio</div><div class="value">${esc(a.studios?.nodes?.[0]?.name||"Not listed")}</div></div><div><div class="label">Score</div><div class="value">★ ${a.averageScore?(a.averageScore/10).toFixed(1):(a.score||"N/A")}</div></div></div><h3>Release information</h3><p>${esc(next)}</p><p><a style="color:#cfc7ef" href="https://www.justwatch.com/in/search?q=${encodeURIComponent(name(a))}" target="_blank" rel="noopener">Check where to watch in India ↗</a></p></div></div>`;
+document.getElementById("detailModal").classList.add("open")}
+function closeDetail(){document.getElementById("detailModal").classList.remove("open")}
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+document.getElementById("search").addEventListener("keydown",e=>{if(e.key==="Enter")runSearch()});
+document.getElementById("topSearch").addEventListener("keydown",e=>{if(e.key==="Enter"){document.getElementById("search").value=e.target.value;runSearch()}});
+load("trending");upcoming();
+</script>
+<script>
+
+const groups=[
+{id:"all",name:"Everything Anime",icon:"✦",members:"12.4K",desc:"General anime talk, seasonal shows and whatever is on your mind."},
+{id:"onepiece",name:"One Piece",icon:"🏴‍☠️",members:"4.8K",desc:"Grand Line theories, episodes, manga, characters and spoilers."},
+{id:"jjk",name:"Jujutsu Kaisen",icon:"☯",members:"3.7K",desc:"Curses, theories, fights, characters and JJK discussions."},
+{id:"shonen",name:"Shonen Hub",icon:"⚔",members:"6.1K",desc:"Action-heavy series, rivalries, power systems and battle anime."},
+{id:"romance",name:"Romance & Slice of Life",icon:"🌸",members:"2.9K",desc:"Romance, school life, wholesome shows and emotional stories."},
+{id:"fantasy",name:"Fantasy Worlds",icon:"✧",members:"3.2K",desc:"Fantasy adventures, magic systems, monsters and worldbuilding."},
+{id:"seasonal",name:"Seasonal Anime",icon:"📅",members:"5.4K",desc:"Current-season anime, weekly reactions and upcoming releases."},
+{id:"recommend",name:"Recommendations",icon:"★",members:"2.5K",desc:"Need something to watch? Ask the community for recommendations."}
+];
+const communityDefaults=[
+{g:"all",title:"What anime completely changed your view on storytelling?",topic:"Discussion",author:"Kairo",body:"Looking for an anime with a story that stayed with you long after finishing it.",comments:42,likes:17},
+{g:"onepiece",title:"Could this be the final island clue?",topic:"Spoiler",author:"ZoroFan",body:"There are a few clues from earlier arcs that might point toward what happens next.",comments:67,likes:55},
+{g:"jjk",title:"What did you think about the latest JJK developments?",topic:"Spoiler",author:"Mika",body:"Let's talk about the characters, fights and where the story could go next.",comments:38,likes:31},
+{g:"romance",title:"Best romance anime with a satisfying ending?",topic:"Recommendation",author:"HanaWave",body:"Looking for a complete romance series with a strong ending and great characters.",comments:23,likes:19},
+{g:"shonen",title:"Which protagonist has the best character growth?",topic:"Discussion",author:"Kairo",body:"Luffy, Tanjiro, Ichigo, Deku, Naruto, Denji... make your case.",comments:49,likes:36},
+{g:"fantasy",title:"Best fantasy worldbuilding in anime?",topic:"Discussion",author:"Yuki",body:"Which anime has the most interesting world, lore and magic system?",comments:21,likes:17},
+{g:"seasonal",title:"What are you watching this season?",topic:"Recommendation",author:"SenpaiBot",body:"Drop your current seasonal anime and one reason people should try it.",comments:14,likes:12},
+{g:"recommend",title:"Recommend me something after AOT",topic:"Recommendation",author:"Mochi",body:"I want a serious story, great atmosphere and characters I can get attached to.",comments:29,likes:24}
+];
+const communityMembers=[
+{id:"kairo",name:"Kairo",bio:"Theories, shonen and late-night binge sessions.",fav:"One Piece",avatar:"K",online:true},
+{id:"yuki",name:"Yuki",bio:"Romance, mystery and seasonal anime.",fav:"Frieren",avatar:"Y",online:true},
+{id:"mika",name:"Mika",bio:"Always looking for underrated recommendations.",fav:"Jujutsu Kaisen",avatar:"M",online:false},
+{id:"zorofan",name:"ZoroFan",bio:"One Piece theories and manga discussions.",fav:"One Piece",avatar:"Z",online:true},
+{id:"hanawave",name:"HanaWave",bio:"Slice of life, romance and fan art.",fav:"Your Name",avatar:"H",online:false},
+{id:"senpaibot",name:"SenpaiBot",bio:"Anime news, release dates and seasonal picks.",fav:"Attack on Titan",avatar:"S",online:true}
+];
+
+let currentGroup="all", groupFilter="ALL";
+let social={
+ requests:JSON.parse(localStorage.getItem("animora_friend_requests")||"[]"),
+ friends:JSON.parse(localStorage.getItem("animora_friends")||"[]")
+};
+
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function getPosts(){try{return JSON.parse(localStorage.getItem("animora_group_posts")||"[]")}catch{return[]}}
+function savePosts(v){localStorage.setItem("animora_group_posts",JSON.stringify(v))}
+function joinedGroups(){try{return JSON.parse(localStorage.getItem("animora_joined_groups")||"[]")}catch{return[]}}
+function saveJoined(v){localStorage.setItem("animora_joined_groups",JSON.stringify(v))}
+function groupById(id){return groups.find(g=>g.id===id)||groups[0]}
+function isJoined(id){return joinedGroups().includes(id)}
+
+function toggleJoin(id){
+ let list=joinedGroups();
+ list=list.includes(id)?list.filter(x=>x!==id):[...list,id];
+ saveJoined(list);renderGroups();renderGroupHeader();renderJoined();
+}
+function renderGroups(){
+ document.getElementById("groupList").innerHTML=groups.map(g=>`
+ <div class="group-item ${currentGroup===g.id?"active":""}" onclick="selectGroup('${g.id}')">
+  <div class="group-icon">${g.icon}</div>
+  <div class="group-info"><div class="group-name">${esc(g.name)}</div><div class="group-members">${g.members} members</div></div>
+ </div>`).join("");
+}
+function selectGroup(id){
+ currentGroup=id;groupFilter="ALL";
+ document.querySelectorAll(".group-item").forEach(x=>x.classList.toggle("active",x.getAttribute("onclick")===`selectGroup('${id}')`));
+ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+ const first=document.querySelector(".tabs .tab");if(first)first.classList.add("active");
+ renderGroupHeader();renderJoined();renderPosts();
+ document.getElementById("composerGroupLabel").textContent=groupById(id).name.toUpperCase();
+}
+function renderGroupHeader(){
+ const g=groupById(currentGroup);
+ document.getElementById("currentGroupIcon").textContent=g.icon;
+ document.getElementById("currentGroupName").textContent=g.name;
+ document.getElementById("currentGroupDesc").textContent=g.desc;
+ const btn=document.getElementById("currentJoinBtn");
+ btn.textContent=isJoined(g.id)?"✓ Joined":"＋ Join Group";
+ btn.classList.toggle("joined",isJoined(g.id));
+}
+function toggleCurrentGroup(){toggleJoin(currentGroup)}
+function renderJoined(){
+ const list=joinedGroups().map(groupById);
+ document.getElementById("joinedStrip").innerHTML=list.length
+ ?list.map(g=>`<button class="mini-group" onclick="selectGroup('${g.id}')">${g.icon} ${esc(g.name)}</button>`).join("")
+ :'<span class="social-note">Join groups to build your own focused feed.</span>';
+}
+function spoilerSetting(){return localStorage.getItem("animora_censor_spoilers")!=="false"}
+function saveSpoilerSetting(v){localStorage.setItem("animora_censor_spoilers",String(v));renderPosts();updateProfileToggle()}
+function updateProfileToggle(){const el=document.getElementById("spoilerToggle");if(el)el.checked=spoilerSetting()}
+function renderPosts(){
+ const list=[...getPosts(),...communityDefaults].filter(p=>p.g===currentGroup).filter(p=>groupFilter==="ALL"||p.topic===groupFilter);
+ const censor=spoilerSetting();
+ document.getElementById("groupPosts").innerHTML=list.length?list.map((p,i)=>{
+  const spoiler=p.topic==="Spoiler";
+  const cls=spoiler&&censor?"spoiler-hidden":"";
+  const wrap=spoiler&&censor?"spoiler-wrap":"";
+  const safe=`<article class="post ${wrap}" ${spoiler&&censor?`onclick="this.classList.toggle('revealed')"`:""}><div class="post-row"><div class="avatar">${esc((p.author||"You").slice(0,1).toUpperCase())}</div><div style="min-width:0;flex:1"><span class="topic">${esc(p.topic)}</span><div class="${cls}"><h3>${esc(p.title)}</h3><p>${esc(p.body)}</p></div><div class="post-meta"><span>by ${esc(p.author||"You")}</span><span>${p.time||"Just now"}</span><span>💬 ${p.comments||0}</span><span>♡ ${p.likes||0}</span></div></div></div>${spoiler&&censor?'<div class="spoiler-cover">Spoiler hidden • click to reveal</div>':""}</article>`;
+  return safe;
+ }).join(""):'<div class="group-feed-note" style="padding:35px 0;text-align:center">No posts in this group yet. Start the first discussion!</div>';
+}
+function setGroupFilter(v,el){groupFilter=v;document.querySelectorAll(".tabs .tab").forEach(x=>x.classList.remove("active"));el.classList.add("active");renderPosts()}
+function openCommunityComposer(){document.getElementById("communityComposer").classList.add("open");document.getElementById("composerGroupLabel").textContent=groupById(currentGroup).name.toUpperCase();document.getElementById("communityPostTitle").focus()}
+function closeCommunityComposer(){document.getElementById("communityComposer").classList.remove("open")}
+function createCommunityPost(){
+ const t=document.getElementById("communityPostTitle").value.trim(),b=document.getElementById("communityPostBody").value.trim(),topic=document.getElementById("communityPostTopic").value;
+ if(!t||!b){alert("Please add a title and post.");return}
+ const p=getPosts();p.unshift({g:currentGroup,title:t,body:b,topic,author:"You",time:"Just now",comments:0,likes:0});savePosts(p);
+ document.getElementById("communityPostTitle").value="";document.getElementById("communityPostBody").value="";closeCommunityComposer();renderPosts();
+}
+
+function saveSocial(){localStorage.setItem("animora_friend_requests",JSON.stringify(social.requests));localStorage.setItem("animora_friends",JSON.stringify(social.friends))}
+function friendState(id){
+ if(social.friends.includes(id))return"friends";
+ if(social.requests.some(r=>r.from===id&&r.to==="you"&&r.status==="pending"))return"incoming";
+ if(social.requests.some(r=>r.from==="you"&&r.to===id&&r.status==="pending"))return"outgoing";
+ return"none";
+}
+function sendFriend(id){if(friendState(id)!=="none")return;social.requests.push({from:"you",to:id,status:"pending"});saveSocial();renderCommunityPeople()}
+function acceptFriend(id){const r=social.requests.find(x=>x.from===id&&x.to==="you"&&x.status==="pending");if(r)r.status="accepted";if(!social.friends.includes(id))social.friends.push(id);saveSocial();renderCommunityPeople()}
+function renderCommunityPeople(){
+ const q=(document.getElementById("peopleSearch")?.value||"").toLowerCase().trim();
+ const list=communityMembers.filter(m=>m.name.toLowerCase().includes(q)||m.bio.toLowerCase().includes(q));
+ document.getElementById("peopleList").innerHTML=list.map(m=>{
+  const st=friendState(m.id);
+  const btn=st==="friends"?'<button class="friend-btn muted" disabled>Friends ✓</button>':
+   st==="incoming"?`<button class="friend-btn accept" onclick="acceptFriend('${m.id}')">Accept</button>`:
+   st==="outgoing"?'<button class="friend-btn muted" disabled>Request Sent</button>':
+   `<button class="friend-btn add" onclick="sendFriend('${m.id}')">＋ Add Friend</button>`;
+  return `<div class="profile"><div class="profile-left" onclick="openCommunityProfile('${m.id}')" style="cursor:pointer"><div class="avatar">${esc(m.avatar)}</div><div><div class="profile-name">${esc(m.name)}</div><div class="profile-bio">${esc(m.bio)}</div><div class="friend-status">${m.online?"● Online":"○ Offline"} • Fav: ${esc(m.fav)}</div></div></div>${btn}</div>`;
+ }).join("")||'<div class="social-note">No members found.</div>';
+ const incoming=social.requests.filter(r=>r.to==="you"&&r.status==="pending");
+ document.getElementById("requestsList").innerHTML=incoming.length?incoming.map(r=>{const m=communityMembers.find(x=>x.id===r.from);return `<div class="friend-row"><div class="profile-left"><div class="avatar" style="width:34px;height:34px">${esc(m?.avatar||"?")}</div><div><div class="profile-name">${esc(m?.name||r.from)}</div><div class="friend-status">wants to be friends</div></div></div><button class="friend-btn accept" onclick="acceptFriend('${esc(r.from)}')">Accept</button></div>`}).join(""):'<div class="social-note">No pending requests.</div>';
+ const friends=social.friends.map(id=>communityMembers.find(m=>m.id===id)).filter(Boolean);
+ document.getElementById("friendsList").innerHTML=friends.length?friends.map(m=>`<div class="friend-row"><div class="profile-left"><div class="avatar" style="width:34px;height:34px">${esc(m.avatar)}</div><div><div class="profile-name">${esc(m.name)}</div><div class="friend-status">${m.online?"Online now":"Offline"}</div></div></div><button class="friend-btn" onclick="openCommunityProfile('${m.id}')">View</button></div>`).join(""):'<div class="social-note">You have no friends yet.</div>';
+ updateProfileToggle();
+}
+function openCommunityProfile(id){
+ const m=communityMembers.find(x=>x.id===id);if(!m)return;
+ const st=friendState(id);
+ const action=st==="friends"?'<button class="join-btn joined" disabled>✓ Friends</button>':
+ st==="outgoing"?'<button class="join-btn" disabled>Request Sent</button>':
+ st==="incoming"?`<button class="join-btn joined" onclick="acceptFriend('${m.id}');openCommunityProfile('${m.id}')">Accept Request</button>`:
+ `<button class="join-btn" onclick="sendFriend('${m.id}');openCommunityProfile('${m.id}')">＋ Add Friend</button>`;
+ document.getElementById("communityProfileContent").innerHTML=`<div class="profile-big"><div class="avatar">${esc(m.avatar)}</div><div><h3>${esc(m.name)}</h3><p>${m.online?"● Online now":"○ Offline"}</p></div></div><p style="color:#b2b7c5;line-height:1.7">${esc(m.bio)}</p><div class="item"><span class="small">Favourite anime</span><strong>${esc(m.fav)}</strong></div><div class="profile-actions" style="margin-top:16px">${action}<button class="ghost" onclick="closeCommunityProfile()">Close</button></div>`;
+ document.getElementById("communityProfileModal").classList.add("open");
+}
+function closeCommunityProfile(){document.getElementById("communityProfileModal").classList.remove("open")}
+
+renderGroups();renderGroupHeader();renderJoined();renderPosts();renderCommunityPeople();
+
+</script>
+</body>
+</html>
